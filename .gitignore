@@ -1,2 +1,6 @@
 **/.ipynb_checkpoints/
 create_video_metrics.log
+.direnv/bin
+.direnv
+results*
+vmaf/model
