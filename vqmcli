@@ -4,6 +4,7 @@
 #  0 on success
 #  1 on failure
 #
+#set -euo pipefail
 
 # Name of the script
 SCRIPT=$(basename "$0")
@@ -452,7 +453,7 @@ function splitVideoProcess {
     createDirectory /tmp/risize/ref/
     createDirectory /tmp/risize/dis/
 
-    n_chunks=$(python3 -c "import math;  print(math.ceil($duration/$sec_seg))")
+    n_chunks=$(uv run python -c "import math;  print(math.ceil($duration/$sec_seg))")
 
     while [ $n -lt $duration ]; do
 
@@ -840,7 +841,6 @@ function cambi {
     createDirectory $OUTDIR/cambi
     local output_dir=$(readlink -f $OUTDIR)
     pathRelative=$(pwd)
-    pwd
 
     if [ ! -f $output_dir/cambi/chunks.csv ]; then
         echo "chunk_n,cambi" >$output_dir/cambi/chunks.csv
@@ -850,14 +850,26 @@ function cambi {
         echo "Computing cambi from $dis_video"
     fi
 
-
     for ((i = 1; i <= $(ls $PATHDIS/yuv | wc -l); i++)); do
-        cd $pathRelative/vmaf &&
-            PYTHONPATH=uv run python ./vmaf/libvmaf/build/tools/vmaf \
-                      --reference $dis_video \
-                      --distorted $dis_video \
-                      --width $width --height $height --pixel_format $pix_fmt --bitdepth $BITDEPTH \
-                      --no_prediction --feature cambi --output $output_dir/cambi/$vid_name.xml 2>/dev/null
+	    # NOTE: Due to us not wanting to use the python library,
+	    # we want to execute the actual vmaf program
+	    # Sadly, there is a function with the same name, so we need
+	    # to do this unfortunate hack
+	    # NOTE: This evaluation library is no-reference
+	    # meaning it doesn't require a reference video
+	    # however for backwards compatability reasons it still allows
+	    # reference evaluation. So we need to pass the same video twice
+	    # See: https://github.com/Netflix/vmaf/blob/master/resource/doc/cambi.md#background
+	    $(eval $($(which vmaf) \
+	    --reference "${dis_video}" \
+	    --distorted "${dis_video}" \
+	    --width "${width}" \
+	    --height "${height}" \
+	    --pixel_format "${pix_fmt}" \
+	    --bitdepth "${BITDEPTH}" \
+	    --no_prediction \
+	    --feature cambi \
+	    --output "${output_dir}/cambi/${vid_name}.xml"))
 
         if [ ! -f "$output_dir/cambi/chunk1.xml" ] && [ "$BITDEPTH" -lt "12" ]; then
             BITDEPTH=$(($BITDEPTH + 2))
@@ -954,7 +966,6 @@ function ssim {
     if $VERBOSE; then
         echo "Computing ssim from $ref_video and $dis_video"
     fi
-
 
     local ssim=$(ffmpeg -hide_banner -r $fps -i $dis_video -r $fps -i $ref_video -lavfi \
                         "[0:v]settb=AVTB,setpts=PTS-STARTPTS[distorted];\
@@ -1071,24 +1082,24 @@ function libvmaf_metrics {
         echo "Computing libvmaf_metrics from $ref_video and $dis_video"
     fi
 
-
-    if [ "$ref_height" -ge "1440" ]; then
+    if [[ "$ref_height" -ge "1440" ]]; then
         if [ ! -f "$OUTDIR/vmaf/chunk1.json" ] && [ "$VVMAF" == "unset" ]; then
             printf "\b${sp:i++%${#sp}:0}"
             printf " \b"
             printf "\n${YELLOW}[Info]: Using 4K model.  ${NC}"
         fi
-        ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi libvmaf="log_fmt=json:log_path=$outDir/$vid_name.json:model_path=/vmaf/model/$V4MODEL:n_threads=$NUM_THREADS:ms_ssim=1" -f null - 2>/dev/null
+        ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi libvmaf="log_fmt=json:log_path=$outDir/$vid_name.json:model_path=./vmaf/model/$V4MODEL:n_threads=$NUM_THREADS:ms_ssim=1" -f null - 2>/dev/null
     else
-        if [ "$ref_height" -ge "1080" ]; then
-            ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi libvmaf="log_fmt=json:log_path=$outDir/$vid_name.json:pool=mean:model_path=/vmaf/model/$VMODEL:n_threads=$NUM_THREADS:ms_ssim=1" -f null - 2>/dev/null
+        if [[ "$ref_height" -ge "1080" ]]; then
+	echo "TEST"
+            ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi libvmaf="log_fmt=json:log_path=$outDir/$vid_name.json:pool=mean:model_path=./vmaf/model/$VMODEL:n_threads=$NUM_THREADS:ms_ssim=1" -f null - 2>/dev/null
         else
             if [ ! -f "$outDir/chunk1.json" ]; then
                 printf "\b${sp:i++%${#sp}:0}"
                 printf " \b"
                 printf "\n${YELLOW}[Info]: Scale two videos to calculate VMAF (1080p).  ${NC}"
             fi
-            ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi "[0:v]scale=-2:1080:flags=bicubic,setpts=PTS-STARTPTS[distorted];[1:v]scale=-2:1080:flags=bicubic,setpts=PTS-STARTPTS[reference];[distorted][reference]libvmaf=log_fmt=json:log_path=$outDir/$vid_name.json:pool=mean:model_path=/vmaf/model/$VMODEL:n_threads=$NUM_THREADS:ms_ssim=1" -f null - 2>/dev/null
+            ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi "[0:v]scale=-2:1080:flags=bicubic,setpts=PTS-STARTPTS[distorted];[1:v]scale=-2:1080:flags=bicubic,setpts=PTS-STARTPTS[reference];[distorted][reference]libvmaf=log_fmt=json:log_path=$outDir/$vid_name.json:pool=mean:model='path=./vmaf/model/$VMODEL':n_threads=$NUM_THREADS:feature=name=float_ms_ssim" -f null - 2>/dev/null
         fi
     fi
 
@@ -1271,7 +1282,7 @@ function processResultsQuality {
     local path_metric=$1
     local output_ext=$2
 
-    $HOME/gits/SOFTX-D-23-00169/scripts/format_results.py $path_metric $output_ext
+    uv run python ./scripts/format_results.py $path_metric $output_ext
 }
 
 #
@@ -1349,6 +1360,7 @@ function processMetric {
                 ;;
             vmaf)
                 printf "\n${GREEN}[Step]:${NC} Process VMAF. "
+		install_model
                 vmaf $vid_ref $vid_dis &
                 spinner
                 ;;
