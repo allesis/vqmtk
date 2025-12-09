@@ -16,9 +16,45 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1758690382,
+        "narHash": "sha256-NY3kSorgqE5LMm1LqNwGne3ZLMF2/ILgLpFr1fS4X3o=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e643668fd71b949c53f8626614b21ff71a07379d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "vqmetric-nix": "vqmetric-nix"
+      }
+    },
+    "vqmetric-nix": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1765301688,
+        "narHash": "sha256-Buma2iF0yW3xNbcWn97MV46CWAEicyO9QA2fUcxncXg=",
+        "owner": "allesis",
+        "repo": "vqmetric-nix",
+        "rev": "84ac6440b662b441a268a6ed1c4d43178a8b3b3b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "allesis",
+        "ref": "main",
+        "repo": "vqmetric-nix",
+        "type": "github"
       }
     }
   },
