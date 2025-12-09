@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Exit values:
 #  0 on success
@@ -111,7 +111,7 @@ function version {
 #
 function version_vmaf {
 
-    local dir="/vmaf/model"
+    local dir="./vmaf/model"
 
     if [ ! -d "$dir" ]; then
         printf "\n Error: No se encuentra el directorio $dir.\n"
@@ -770,7 +770,7 @@ function niqe {
         echo "Computing niqe from $dis_video"
     fi
 
-    niqe=$(/scikitvenv/bin/python /scripts/scikit_metric.py $dis_video none niqe 2>/dev/null)
+    niqe=$(uv run ./scripts/scikit_metric.py $dis_video none niqe 2>/dev/null)
 
     echo "$i,$niqe" >>$OUTDIR/niqe/chunks.csv
 }
@@ -791,7 +791,7 @@ function brisque {
         echo "Computing brisque from $dis_video"
     fi
 
-    brisque=$(/scikitvenv/bin/python /scripts/scikit_metric.py $dis_video none brisque 2>/dev/null)
+    brisque=$(uv run ./scripts/scikit_metric.py $dis_video none brisque 2>/dev/null)
 
     echo "$i,$brisque" >>$OUTDIR/brisque/chunks.csv
 }
@@ -813,7 +813,7 @@ function viideo {
         echo "Computing vvideo from $dis_video"
     fi
 
-    viideo=$(/scikitvenv/bin/python /scripts/scikit_metric.py $dis_video none viideo 2>/dev/null)
+    viideo=$(uv run ./scripts/scikit_metric.py $dis_video none viideo 2>/dev/null)
 
     echo "$i,$viideo" >>$OUTDIR/viideo/chunks.csv
 }
@@ -840,6 +840,7 @@ function cambi {
     createDirectory $OUTDIR/cambi
     local output_dir=$(readlink -f $OUTDIR)
     pathRelative=$(pwd)
+    pwd
 
     if [ ! -f $output_dir/cambi/chunks.csv ]; then
         echo "chunk_n,cambi" >$output_dir/cambi/chunks.csv
@@ -851,8 +852,8 @@ function cambi {
 
 
     for ((i = 1; i <= $(ls $PATHDIS/yuv | wc -l); i++)); do
-        cd /vmaf &&
-            PYTHONPATH=python /vmaf/libvmaf/build/tools/vmaf \
+        cd $pathRelative/vmaf &&
+            PYTHONPATH=uv run python ./vmaf/libvmaf/build/tools/vmaf \
                       --reference $dis_video \
                       --distorted $dis_video \
                       --width $width --height $height --pixel_format $pix_fmt --bitdepth $BITDEPTH \
@@ -890,7 +891,7 @@ function strred {
         echo "Computing cambi from $ref_video and $dis_video"
     fi
 
-    strred=$(/scikitvenv/bin/python /scripts/scikit_metric.py $dis_video $ref_video strred 2>/dev/null)
+    strred=$(uv run /scripts/scikit_metric.py $dis_video $ref_video strred 2>/dev/null)
 
     echo "$i,$strred" >>$OUTDIR/strred/chunks.csv
 }
@@ -1270,7 +1271,7 @@ function processResultsQuality {
     local path_metric=$1
     local output_ext=$2
 
-    /scripts/format_results.py $path_metric $output_ext
+    $HOME/gits/SOFTX-D-23-00169/scripts/format_results.py $path_metric $output_ext
 }
 
 #
