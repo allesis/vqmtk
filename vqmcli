@@ -1088,11 +1088,10 @@ function libvmaf_metrics {
             printf " \b"
             printf "\n${YELLOW}[Info]: Using 4K model.  ${NC}"
         fi
-        ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi libvmaf="log_fmt=json:log_path=$outDir/$vid_name.json:model_path=./vmaf/model/$V4MODEL:n_threads=$NUM_THREADS:ms_ssim=1" -f null - 2>/dev/null
+        ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi libvmaf="log_fmt=json:log_path=$outDir/$vid_name.json:model='path=./vmaf/model/$V4MODEL':n_threads=$NUM_THREADS:feature=name=float_ms_ssim" -f null - 2>/dev/null
     else
         if [[ "$ref_height" -ge "1080" ]]; then
-	echo "TEST"
-            ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi libvmaf="log_fmt=json:log_path=$outDir/$vid_name.json:pool=mean:model_path=./vmaf/model/$VMODEL:n_threads=$NUM_THREADS:ms_ssim=1" -f null - 2>/dev/null
+            ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi libvmaf="log_fmt=json:log_path=$outDir/$vid_name.json:pool=mean:model='path=./vmaf/model/$VMODEL':n_threads=$NUM_THREADS:feature=name=float_ms_ssim" -f null - 2>/dev/null
         else
             if [ ! -f "$outDir/chunk1.json" ]; then
                 printf "\b${sp:i++%${#sp}:0}"
@@ -1102,6 +1101,9 @@ function libvmaf_metrics {
             ffmpeg -r $fps -i $dis_video -r $fps -i $ref_video -lavfi "[0:v]scale=-2:1080:flags=bicubic,setpts=PTS-STARTPTS[distorted];[1:v]scale=-2:1080:flags=bicubic,setpts=PTS-STARTPTS[reference];[distorted][reference]libvmaf=log_fmt=json:log_path=$outDir/$vid_name.json:pool=mean:model='path=./vmaf/model/$VMODEL':n_threads=$NUM_THREADS:feature=name=float_ms_ssim" -f null - 2>/dev/null
         fi
     fi
+
+    echo $outDir
+    echo $vid_name.json
 
 }
 
@@ -1195,24 +1197,26 @@ function vif {
     fi
 
     if [ -f "$outDirlibvmaf/$vid_name.json" ]; then
-        vif_scale0=$(jq ".pooled_metrics.vif_scale0.mean" $outDirlibvmaf/$vid_name.json)
-        vif_scale1=$(jq ".pooled_metrics.vif_scale1.mean" $outDirlibvmaf/$vid_name.json)
-        vif_scale2=$(jq ".pooled_metrics.vif_scale2.mean" $outDirlibvmaf/$vid_name.json)
-        vif_scale3=$(jq ".pooled_metrics.vif_scale3.mean" $outDirlibvmaf/$vid_name.json)
+        vif_scale0=$(jq ".pooled_metrics.integer_vif_scale0.mean" $outDirlibvmaf/$vid_name.json)
+        vif_scale1=$(jq ".pooled_metrics.integer_vif_scale1.mean" $outDirlibvmaf/$vid_name.json)
+        vif_scale2=$(jq ".pooled_metrics.integer_vif_scale2.mean" $outDirlibvmaf/$vid_name.json)
+        vif_scale3=$(jq ".pooled_metrics.integer_vif_scale3.mean" $outDirlibvmaf/$vid_name.json)
         echo "$i,$vif_scale0,$vif_scale1,$vif_scale2,$vif_scale3" >>$outDir/chunks.csv
 
-        jq --raw-output '{"frames": [.frames[] | {frameNum, vif_scale0: .metrics.vif_scale0, vif_scale1: .metrics.vif_scale1, vif_scale2: .metrics.vif_scale2, vif_scale3: .metrics.vif_scale3}], "vif": {vif_scale0_mean: .pooled_metrics.vif_scale0.mean, vif_scale1_mean: .pooled_metrics.vif_scale1.mean, vif_scale2_mean: .pooled_metrics.vif_scale2.mean, vif_scale3_mean: .pooled_metrics.vif_scale3.mean}}' $outDirlibvmaf/$vid_name.json >$outDir/$vid_name.json
+        jq --raw-output '{"frames": [.frames[] | {frameNum, integer_vif_scale0: .metrics.integer_vif_scale0, integer_vif_scale1: .metrics.integer_vif_scale1, integer_vif_scale2: .metrics.integer_vif_scale2, integer_vif_scale3: .metrics.integer_vif_scale3}], "vif": {integer_vif_scale0_mean: .pooled_metrics.integer_vif_scale0.mean, integer_vif_scale1_mean: .pooled_metrics.integer_vif_scale1.mean, integer_vif_scale2_mean: .pooled_metrics.integer_vif_scale2.mean, integer_vif_scale3_mean: .pooled_metrics.integer_vif_scale3.mean}}' $outDirlibvmaf/$vid_name.json >$outDir/$vid_name.json
 
     else
         libvmaf_metrics $ref_video $dis_video
-        vif_scale0=$(jq ".pooled_metrics.vif_scale0.mean" $outDirlibvmaf/$vid_name.json)
-        vif_scale1=$(jq ".pooled_metrics.vif_scale1.mean" $outDirlibvmaf/$vid_name.json)
-        vif_scale2=$(jq ".pooled_metrics.vif_scale2.mean" $outDirlibvmaf/$vid_name.json)
-        vif_scale3=$(jq ".pooled_metrics.vif_scale3.mean" $outDirlibvmaf/$vid_name.json)
+        vif_scale0=$(jq ".pooled_metrics.integer_vif_scale0.mean" $outDirlibvmaf/$vid_name.json)
+        vif_scale1=$(jq ".pooled_metrics.integer_vif_scale1.mean" $outDirlibvmaf/$vid_name.json)
+        vif_scale2=$(jq ".pooled_metrics.integer_vif_scale2.mean" $outDirlibvmaf/$vid_name.json)
+        vif_scale3=$(jq ".pooled_metrics.integer_vif_scale3.mean" $outDirlibvmaf/$vid_name.json)
+        echo "$i,$vif_scale0,$vif_scale1,$vif_scale2,$vif_scale3"
         echo "$i,$vif_scale0,$vif_scale1,$vif_scale2,$vif_scale3" >>$outDir/chunks.csv
 
-        jq --raw-output '{"frames": [.frames[] | {frameNum, vif_scale0: .metrics.vif_scale0, vif_scale1: .metrics.vif_scale1, vif_scale2: .metrics.vif_scale2, vif_scale3: .metrics.vif_scale3}], "vif": {vif_scale0_mean: .pooled_metrics.vif_scale0.mean, vif_scale1_mean: .pooled_metrics.vif_scale1.mean, vif_scale2_mean: .pooled_metrics.vif_scale2.mean, vif_scale3_mean: .pooled_metrics.vif_scale3.mean}}' $outDirlibvmaf/$vid_name.json >$outDir/$vid_name.json
+        jq --raw-output '{"frames": [.frames[] | {frameNum, integer_vif_scale0: .metrics.integer_vif_scale0, integer_vif_scale1: .metrics.integer_vif_scale1, integer_vif_scale2: .metrics.integer_vif_scale2, integer_vif_scale3: .metrics.integer_vif_scale3}], "vif": {integer_vif_scale0_mean: .pooled_metrics.integer_vif_scale0.mean, integer_vif_scale1_mean: .pooled_metrics.integer_vif_scale1.mean, integer_vif_scale2_mean: .pooled_metrics.integer_vif_scale2.mean, integer_vif_scale3_mean: .pooled_metrics.integer_vif_scale3.mean}}' $outDirlibvmaf/$vid_name.json >$outDir/$vid_name.json
     fi
+    exit 0
 }
 
 
@@ -1230,7 +1234,7 @@ function siti {
         echo "chunk_n,si,ti" >$OUTDIR/siti/chunks.csv
     fi
 
-    siti-tools $video --color-range full -f json > $OUTDIR/siti/$vid_name.json 2>/dev/null
+    siti-tools $video --color-range full -f json > $OUTDIR/siti/$vid_name.json
 
     local ti=$(cat $OUTDIR/siti/$vid_name.json | jq '(.ti | add) / (.ti | length)')
     local si=$(cat $OUTDIR/siti/$vid_name.json | jq '(.si | add) / (.si | length)')
