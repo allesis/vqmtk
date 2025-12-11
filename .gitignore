@@ -4,3 +4,4 @@ create_video_metrics.log
 .direnv
 results*
 vmaf/model
+vqmtk.egg-info
