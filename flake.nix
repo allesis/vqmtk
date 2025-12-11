@@ -25,9 +25,13 @@
         packages = with pkgs; [
           bc
           jq
+          uv
+          libGL
+          libz
+          glibc
           libvmaf
           ffmpeg-full
-	  opencv
+          opencv
           vqmetric-nix.packages.${system}.default
           just
           cargo
@@ -36,9 +40,13 @@
         ];
 
         nativeBuildInputs = with pkgs; [
+          python313
+          python3Packages.scikit-video
+          python3Packages.ffmpeg
           libvmaf
           ffmpeg-full
-	  opencv
+          opencv
+          cargo
           jq
           bc
           vqmetric-nix.packages.${system}.default
@@ -46,8 +54,11 @@
 
         shellHook = ''
           export PATH=$HOME/.cargo/bin:$PATH
+          rustup default stable
           cargo install av-metrics-tool
+          source .venv/bin/activate
         '';
+        LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib/:/run/opengl-driver/lib/:${pkgs.libz}/lib/:${pkgs.libGL}/lib/:${pkgs.glib}/lib/";
       };
     });
   };
