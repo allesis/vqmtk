@@ -1,0 +1,30 @@
+[project]
+name = "vqmtk"
+version = "0.1.0"
+description = "Artifacts to create a container with 14 video quality metrics (Jupyter Notebooks and CLI)"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+	"numpy",#>=1.18.2",
+	"scipy>=1.4.1",
+	"matplotlib",#>=3.2.1",
+	"pandas",#>=1.0.3",
+	"scikit-learn",#>1.0.2",
+	"scikit-image",#>0.18.3",
+	"h5py",#>=2.6.0",
+	"sureal",#>=0.4.2",
+	"dill",#>=0.3.1",
+	"cython",
+	"ffmpeg==1.4",
+	#"PyWavelets==1.1.1",
+	"PyWavelets",
+	"python-slugify",#>=5.0.0",
+	"plotly",
+	"xmltodict",
+	"jupyter-dash",
+	"lxml",
+	"siti-tools",
+	#"scikit-video",
+	"scikit-video @ git+https://github.com/allesis/scikit-video",
+	"opencv-python",
+]
