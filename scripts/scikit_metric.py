@@ -7,6 +7,11 @@ import json
 import numpy as np
 
 # check for skvideo lib
+if not hasattr(np, "float"):
+    np.float = float
+if not hasattr(np, "int"):
+    np.int = int 
+
 try:
     import skvideo.io
     import skvideo.datasets
@@ -48,7 +53,7 @@ def qualityMetric(distorted,reference,metric):
             i += 1
         for item in range(i):
             msssim.append(aux_msssim[item][0])
-        print np.mean(msssim)
+        print(np.mean(msssim))
     
     elif metric == "mse":
         aux_mse = []
@@ -61,7 +66,7 @@ def qualityMetric(distorted,reference,metric):
         for item in range(i):
             mse.append(aux_mse[item][0])
 
-        print np.mean(mse)
+        print(np.mean(mse))
     
     elif metric == "ssim":
       
@@ -75,7 +80,7 @@ def qualityMetric(distorted,reference,metric):
         for item in range(i):
             ssim.append(aux_ssim[item][0])
 
-        print np.mean(ssim)
+        print(np.mean(ssim))
 
     elif metric == "psnr":
       
@@ -90,17 +95,17 @@ def qualityMetric(distorted,reference,metric):
         for item in range(i):
             psnr.append(aux_psnr[item][0])
 
-        print np.mean(psnr)
+        print(np.mean(psnr))
 
     elif metric == "niqe":
       vid = skvideo.io.vread(distorted, outputdict={"-pix_fmt": "gray"})[:, :, :, 0]
       vid = skvideo.utils.vshape(vid)
-      print np.mean(skvideo.measure.niqe(vid))
+      print(np.mean(skvideo.measure.niqe(vid)))
 
     elif metric == "brisque":
       vid = skvideo.io.vread(distorted, outputdict={"-pix_fmt": "gray"})[:, :, :, 0]
       vid = skvideo.utils.vshape(vid)
-      print np.mean(skvideo.measure.brisque_features(vid))
+      print(np.mean(skvideo.measure.brisque_features(vid)))
     
     elif metric == "strred":
       reference = skvideo.io.vread(reference, outputdict={"-pix_fmt": "gray"})[:, :, :, 0]
@@ -108,21 +113,21 @@ def qualityMetric(distorted,reference,metric):
       result=[]
       
       result=skvideo.measure.strred(reference, distorted)
-      print result[1],",",result[2]
+      print(result[1],",",result[2])
 
       
     elif metric == "viideo":
         vid = skvideo.io.vread(distorted, outputdict={"-pix_fmt": "gray"})[:, :, :, 0]
         vid = skvideo.utils.vshape(vid)
-        print skvideo.measure.viideo_score(vid, blocksize=(18, 18), blockoverlap=(8, 8), filterlength=7)
+        print(skvideo.measure.viideo_score(vid, blocksize=(18, 18), blockoverlap=(8, 8), filterlength=7))
     
     else:
-        print '-- No support for',metric,'metric'
+        print('-- No support for',metric,'metric')
 
 
 if __name__ == "__main__":
     distorted, reference, metric = readArgs()
     if metric is None:
-        print ('Error metric')
+        print(('Error metric'))
     else:
         qualityMetric(distorted,reference,metric)
