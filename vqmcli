@@ -312,11 +312,12 @@ function checkVideos {
         SCALE=0
     else
 
+
         local ext_ref=$(echo "${vid_ref#*.}")
         local ext_dis=$(echo "${vid_dis#*.}")
 
         local dur_ref=$(ffprobeVideoProp $vid_ref duration)
-        local dur_dis=$(ffprobeVideoProp $vid_dir duration)
+        local dur_dis=$(ffprobeVideoProp $vid_dis duration)
 
         local wid_ref=$(ffprobeVideoProp $vid_ref width)
         local hei_ref=$(ffprobeVideoProp $vid_ref height)
@@ -910,6 +911,8 @@ function strred {
 
 #
 # Calculate PSNR
+# TODO: The results from this seem...wrong
+# Double check this is actually calculating the values correctly
 #
 function psnr {
 
@@ -1458,7 +1461,7 @@ function processRequest {
 }
 
 function analyzesVideo {
-    pritf "
+    printf "
         $APSNR=APSNR
         $BRISQUE=BRISQUE
         $CAMBI=CAMBI
