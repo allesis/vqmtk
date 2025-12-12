@@ -29,24 +29,31 @@
           libGL
           libz
           glibc
+          glib
           libvmaf
           ffmpeg-full
           opencv
           vqmetric-nix.packages.${system}.default
           just
           cargo
+          rustc
           bash-language-server
           python313Packages.jedi-language-server
         ];
 
         nativeBuildInputs = with pkgs; [
           python313
-          python3Packages.scikit-video
-          python3Packages.ffmpeg
+          python313Packages.scikit-misc
+          python313Packages.ffmpy
+          libGL
+          libz
+          glibc
+          glib
           libvmaf
           ffmpeg-full
           opencv
           cargo
+          rustc
           jq
           bc
           vqmetric-nix.packages.${system}.default
@@ -58,7 +65,7 @@
           cargo install av-metrics-tool
           source .venv/bin/activate
         '';
-        LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib/:/run/opengl-driver/lib/:${pkgs.libz}/lib/:${pkgs.libGL}/lib/:${pkgs.glib}/lib/";
+        LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib/:/run/opengl-driver/lib/:${pkgs.libz}/lib/:${pkgs.libGL}/lib/:${pkgs.glib.out}/lib/:${pkgs.glibc}/lib/";
       };
     });
   };

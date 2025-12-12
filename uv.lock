@@ -1409,7 +1409,7 @@ wheels = [
 [[package]]
 name = "scikit-video"
 version = "1.1.11"
-source = { git = "https://github.com/allesis/scikit-video#b5b02c7cb7b0394b8d92902ad4b4ca3d75faee3b" }
+source = { git = "https://github.com/scikit-video/scikit-video#b5b02c7cb7b0394b8d92902ad4b4ca3d75faee3b" }
 dependencies = [
     { name = "numpy" },
     { name = "pillow" },
@@ -1681,7 +1681,7 @@ requires-dist = [
     { name = "pywavelets" },
     { name = "scikit-image" },
     { name = "scikit-learn" },
-    { name = "scikit-video", git = "https://github.com/allesis/scikit-video" },
+    { name = "scikit-video", git = "https://github.com/scikit-video/scikit-video" },
     { name = "scipy", specifier = ">=1.4.1" },
     { name = "siti-tools" },
     { name = "sureal" },

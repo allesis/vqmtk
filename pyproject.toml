@@ -25,6 +25,6 @@ dependencies = [
 	"lxml",
 	"siti-tools",
 	#"scikit-video",
-	"scikit-video @ git+https://github.com/allesis/scikit-video",
+	"scikit-video @ git+https://github.com/scikit-video/scikit-video",
 	"opencv-python",
 ]
