@@ -939,7 +939,7 @@ function psnr {
     local psnr=$(ffmpeg -hide_banner -r $fps -i $dis_video -r $fps -i $ref_video -lavfi \
                         "[0:v]settb=AVTB,setpts=PTS-STARTPTS[distorted];\
                 [1:v]settb=AVTB,setpts=PTS-STARTPTS[reference];\
-                [distorted][reference]psnr=f=$OUTDIR/psnr/$vid_name.txt" -f null - 2>&1 | tail -1 | awk '{print $8}' | cut -d":" -f2)
+                [distorted][reference]psnr=f=$OUTDIR/psnr/$vid_name.txt" -f null - 2>&1 | tail -3 | head -n 1 | awk '{print $8}' | cut -d":" -f2)
 
     if [ "$psnr" == "inf" ]; then
         local psnr=$((60))
