@@ -41,8 +41,6 @@
 
         nativeBuildInputs = with pkgs; [
           python313
-          python3Packages.scikit-video
-          python3Packages.ffmpeg
           libvmaf
           ffmpeg-full
           opencv
