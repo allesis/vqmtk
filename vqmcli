@@ -1516,6 +1516,12 @@ function numberThreads {
     echo $NUMBER_THREADS
 }
 
+function cleanup {
+	tput cnorm
+}
+
+trap cleanup EXIT
+
 #
 # Definition of global variables
 #
