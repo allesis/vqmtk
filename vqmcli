@@ -331,13 +331,13 @@ function checkVideos {
         local hei_dis=$(ffprobeVideoProp $vid_dis height)
 
         # Same duration
-        # if [[ $(python3 -c "print($dur_dis==$dur_ref)") != "False" ]]; then
-        #     echo "Same duration" >/dev/null
-        # else
-        #     printf "${RED}[Error]:${NC} The reference video and the distorted video do not have the same duration.\n"
-        #     badUsage
-        #     exit 0
-        # fi
+        if [[ $(uv run python -c "print($dur_dis==$dur_ref)") != "False" ]]; then
+            echo "Same duration" >/dev/null
+        else
+            printf "${RED}[Error]:${NC} The reference video and the distorted video do not have the same duration.\n"
+            badUsage
+            exit 0
+        fi
 
         # Same resolution
         if [ "$wid_ref" = "$wid_dis" ] && [ "$hei_ref" = "$hei_dis" ]; then
@@ -914,7 +914,7 @@ function strred {
 
     strred=$(uv run /scripts/scikit_metric.py $dis_video $ref_video strred 2>/dev/null)
 
-    echo "$i,$strred" >>$OUTDIR/strred/chunks.csv
+    echo "$i,$strred" >> $OUTDIR/strred/chunks.csv
 }
 
 #
@@ -981,7 +981,7 @@ function ssim {
     local ssim=$(ffmpeg -hide_banner -r $fps -i $dis_video -r $fps -i $ref_video -lavfi \
                         "[0:v]settb=AVTB,setpts=PTS-STARTPTS[distorted];\
             [1:v]settb=AVTB,setpts=PTS-STARTPTS[reference];\
-            [distorted][reference]ssim=f=$OUTDIR/ssim/chunk$i.txt" -f null - 2>&1 | tail -1 | awk '{print $11}' | cut -d':' -f2)
+            [distorted][reference]ssim=f=$OUTDIR/ssim/chunk$i.txt" -f null - 2>&1 | tail -3 | head -n 1 | awk '{print $11}' | cut -d':' -f2)
 
     echo "$i,$ssim" >>$OUTDIR/ssim/chunks.csv
 }
