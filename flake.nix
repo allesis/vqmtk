@@ -39,6 +39,7 @@
           rustc
           bash-language-server
           python313Packages.jedi-language-server
+	  just-lsp
         ];
 
         nativeBuildInputs = with pkgs; [
