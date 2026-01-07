@@ -912,7 +912,7 @@ function strred {
         echo "Computing cambi from $ref_video and $dis_video"
     fi
 
-    strred=$(uv run /scripts/scikit_metric.py $dis_video $ref_video strred 2>/dev/null)
+    strred=$(uv run ./scripts/scikit_metric.py $dis_video $ref_video strred 2>/dev/null)
 
     echo "$i,$strred" >> $OUTDIR/strred/chunks.csv
 }
