@@ -5,3 +5,4 @@ create_video_metrics.log
 results*
 vmaf/model
 vqmtk.egg-info
+log.json
