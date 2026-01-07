@@ -2,7 +2,7 @@ DEFAULT_REMOTE_DIR := '$DEFAULT_REMOTE_DIR' # We can't set this to a default sad
 DEFAULT_DIRECTORY := `echo ${DEFAULT_DIRECTORY:-"$HOME/video"}`
 DEFAULT_INSTALL_DIR := `echo ${DEFAULT_INSTALL_DIR:-"$HOME/.local/bin"}`
 DEFAULT_FORMAT := `echo ${DEFAULT_FORMAT:-"y4m"}`
-test VIDEO FORMAT='{{DEFAULT_FORMAT}}' DIRECTORY='{{DEFAULT_DIRECTORY}}' DECODE_SUFFIX='-decode':
+test VIDEO FORMAT=DEFAULT_FORMAT DIRECTORY=DEFAULT_DIRECTORY DECODE_SUFFIX='-decode':
 	#!/usr/bin/env bash
 	set -euo pipefail
 	function check_run_location {
@@ -26,6 +26,5 @@ test VIDEO FORMAT='{{DEFAULT_FORMAT}}' DIRECTORY='{{DEFAULT_DIRECTORY}}' DECODE_
 	# and we have already uploaded old data to wandb.
 	rm -rf results_*
 	sh vqmcli -r {{DIRECTORY}}/{{VIDEO}}.{{FORMAT}} -d {{DIRECTORY}}/{{VIDEO}}{{DECODE_SUFFIX}}.{{FORMAT}} -o results -l
-	uv run upload_results_to_wandb.py
 dev-test VIDEO: (test VIDEO DEFAULT_FORMAT DEFAULT_DIRECTORY '')
 	set -euxo pipefail
