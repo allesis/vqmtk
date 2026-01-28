@@ -5,6 +5,7 @@ DEFAULT_FORMAT := `echo ${DEFAULT_FORMAT:-"y4m"}`
 test VIDEO FORMAT=DEFAULT_FORMAT DIRECTORY=DEFAULT_DIRECTORY DECODE_SUFFIX='-decode':
 	#!/usr/bin/env bash
 	set -euo pipefail
+	source .venv/bin/activate
 	function check_run_location {
 		if [ -z ${VQMCLI_IGNORE_WORKING_DIR+x} ]; then
 			local correct_dir
@@ -25,6 +26,6 @@ test VIDEO FORMAT=DEFAULT_FORMAT DIRECTORY=DEFAULT_DIRECTORY DECODE_SUFFIX='-dec
 	# we have checked that we are in the correct dir,
 	# and we have already uploaded old data to wandb.
 	rm -rf results_*
-	sh vqmcli -r {{DIRECTORY}}/{{VIDEO}}.{{FORMAT}} -d {{DIRECTORY}}/{{VIDEO}}{{DECODE_SUFFIX}}.{{FORMAT}} -o results -l
+	./vqmcli -r {{DIRECTORY}}/{{VIDEO}}.{{FORMAT}} -d {{DIRECTORY}}/{{VIDEO}}{{DECODE_SUFFIX}}.{{FORMAT}} -o results -l
 dev-test VIDEO: (test VIDEO DEFAULT_FORMAT DEFAULT_DIRECTORY '')
 	set -euxo pipefail
