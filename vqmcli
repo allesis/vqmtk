@@ -801,7 +801,7 @@ function brisque {
         echo "Computing brisque from $dis_video"
     fi
 
-    brisque=$(uv run ./scripts/scikit_metric.py $dis_video none brisque 2>/dev/null)
+    brisque=$(uv run ./scripts/scikit_metric.py $dis_video none brisque)
 
     echo "$i,$brisque" >>$OUTDIR/brisque/chunks.csv
 }
