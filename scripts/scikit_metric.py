@@ -17,7 +17,7 @@ try:
     import skvideo.datasets
     import skvideo.measure
 except ImportError:
-    sys.stderr.write("Error: Missing package 'python2 skvideo'\n")
+    sys.stderr.write("Error: Missing package 'skvideo'\n")
     sys.exit(1)
 
 distortedPath = None
